@@ -1,0 +1,25 @@
+# Safety net — app/ and backend/ have their own .gitignore for this too.
+.env
+.env.*
+!.env.example
+
+# Claude Code session data — local only, never part of the app.
+/.claude/
+
+# Planning/reference material — not part of the deployable app, and some of
+# it (master data.xlsx, the staging DB report) shouldn't be public.
+/prd_work/
+/AI Meeting Tool Interaction Design.jpg
+/CEO_PA_10Day_Plan.xlsx
+/CEO_PA_12Day_Plan.xlsx
+/CEO_PA_Interactive_Prototype.html
+/CEO_PA_PRD_v1.0.docx
+/CEO_PA_PRD_v2.0.docx
+/CEO_PA_Production_Build_Schedule.xlsx
+/CEO_PA_Prototype (1).html
+/CEO_PA_Staging_DB_Report.docx
+/CEO_PA_plan schedule.xlsx
+/My RCD & Weekly schedule - Weekly schedule.pdf
+/logo.png
+/master data.xlsx
+/weekly schedule.jpg

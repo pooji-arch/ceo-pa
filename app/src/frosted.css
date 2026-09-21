@@ -1,0 +1,397 @@
+/* ============================================================
+   Frosted Violet — layout shell for the app chrome
+   (Sidebar.tsx / AppShell.tsx / Topbar.tsx)
+
+   Design tokens (--brand, --glass, --shadow-card, …), the shared
+   keyframe library, and global focus/reduced-motion rules already
+   live in src/index.css (spec §1, §8, §9) — this file only adds
+   the component-level classes for the app shell chrome so it
+   doesn't collide with rules other files rely on.
+   ============================================================ */
+
+/* ============================================================
+   App shell (§3)
+   ============================================================ */
+.fv-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-gradient);
+  gap: 16px;
+  padding: 16px;
+}
+
+.fv-content-col {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.fv-content-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.fv-content-inner {
+  max-width: 1500px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px clamp(16px, 3vw, 32px) 40px;
+}
+
+@media (max-width: 767px) {
+  .fv-shell { padding: 12px; }
+}
+
+/* ============================================================
+   Sidebar (§4) — floating glass rail, pure-CSS hover auto-expand
+   ============================================================ */
+.fv-sidebar {
+  position: sticky;
+  top: 16px;
+  height: calc(100vh - 32px);
+  width: 212px;
+  flex: 0 0 212px;
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  z-index: 40;
+  animation: scaleIn 0.2s ease both;
+}
+
+@media (max-width: 767px) {
+  .fv-sidebar { display: none; }
+}
+
+/* -- brand block (pinned top) -- */
+.fv-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 6px 14px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.fv-brand-mark {
+  width: 38px; height: 38px; flex: 0 0 38px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: .85rem; color: #fff;
+  background: var(--brand-grad-raised);
+  box-shadow: 0 2px 0 var(--brand-shadow-color), 0 4px 10px rgba(76, 29, 149, .3), inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+.fv-brand-text {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 170px;
+  opacity: 1;
+  transition: max-width .2s ease, opacity .12s ease;
+}
+.fv-brand-title { font-weight: 800; font-size: .82rem; color: var(--deep); line-height: 1.2; }
+.fv-brand-sub { font-size: .66rem; color: var(--muted); margin-top: 1px; white-space: nowrap; }
+
+/* -- nav list -- */
+.fv-nav-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.fv-nav-list::-webkit-scrollbar { display: none; }
+.fv-nav-list { scrollbar-width: none; }
+
+.fv-nav-group + .fv-nav-group { margin-top: 6px; }
+
+.fv-group-label {
+  font-size: .62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted-strong);
+  padding: 8px 11px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 170px;
+  opacity: 1;
+  transition: max-width .2s ease, opacity .12s ease;
+}
+
+.fv-group-items { display: flex; flex-direction: column; gap: 2px; }
+
+/* -- nav item (link or button) -- */
+.fv-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 11px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: .82rem;
+  font-family: inherit;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .12s ease, color .12s ease;
+}
+.fv-nav-item:hover { background: rgba(91, 33, 182, .08); color: var(--brand); }
+.fv-nav-item.active { background: var(--surface-strong); color: var(--brand); font-weight: 700; }
+.fv-nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 22%; bottom: 22%; width: 3px;
+  border-radius: 3px;
+  background: var(--brand);
+}
+.fv-icon { width: 18px; height: 18px; flex: 0 0 18px; }
+.fv-label {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 170px;
+  opacity: 1;
+  transition: max-width .2s ease, opacity .12s ease;
+}
+.fv-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: .62rem;
+  font-weight: 800;
+  animation: badgePop .2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex: 0 0 auto;
+}
+
+/* -- footer (pinned bottom) -- */
+.fv-sidebar-footer { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; }
+.fv-signout-btn:hover { background: rgba(225, 29, 72, .1); color: var(--red-deep); }
+
+/* ---------- collapsed rail (.is-collapsed on the shell) ---------- */
+.is-collapsed .fv-sidebar {
+  width: 70px;
+  flex: 0 0 70px;
+  padding: 16px 10px;
+  overflow: hidden;
+  transition: width .22s ease, flex-basis .22s ease, padding .22s ease;
+}
+.is-collapsed .fv-sidebar .fv-brand { justify-content: center; padding: 6px 0 14px; }
+.is-collapsed .fv-sidebar .fv-brand-text { max-width: 0; opacity: 0; }
+.is-collapsed .fv-sidebar .fv-group-label { max-width: 0; opacity: 0; padding-left: 0; padding-right: 0; }
+.is-collapsed .fv-sidebar .fv-nav-item { justify-content: center; padding: 11px 0; }
+.is-collapsed .fv-sidebar .fv-label { max-width: 0; opacity: 0; }
+.is-collapsed .fv-sidebar .fv-nav-item.active::before { opacity: 0; }
+.is-collapsed .fv-sidebar .fv-badge {
+  position: absolute; top: 4px; right: 8px; margin-left: 0;
+  min-width: 8px; height: 8px; padding: 0; font-size: 0;
+}
+
+/* ---------- hover-expand (the signature animation) ---------- */
+.is-collapsed .fv-sidebar:hover {
+  width: 212px;
+  flex: 0 0 212px;
+  padding: 14px;
+}
+.is-collapsed .fv-sidebar:hover .fv-brand { justify-content: flex-start; padding: 6px 6px 14px; }
+.is-collapsed .fv-sidebar:hover .fv-brand-text {
+  max-width: 170px; opacity: 1;
+  transition: max-width .22s ease, opacity .2s ease .06s;
+}
+.is-collapsed .fv-sidebar:hover .fv-group-label {
+  max-width: 170px; opacity: 1; padding: 8px 11px 4px;
+  transition: max-width .22s ease, opacity .2s ease .06s;
+}
+.is-collapsed .fv-sidebar:hover .fv-nav-item { justify-content: flex-start; padding: 8px 11px; gap: 10px; }
+.is-collapsed .fv-sidebar:hover .fv-label {
+  max-width: 170px; opacity: 1;
+  transition: max-width .22s ease, opacity .2s ease .06s;
+}
+.is-collapsed .fv-sidebar:hover .fv-nav-item.active::before { opacity: 1; }
+.is-collapsed .fv-sidebar:hover .fv-badge {
+  position: static; top: auto; right: auto; margin-left: auto;
+  min-width: 18px; height: 18px; padding: 0 5px; font-size: .62rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fv-sidebar,
+  .fv-sidebar * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ============================================================
+   Mobile nav drawer (fallback for the collapsed rail below md)
+   ============================================================ */
+.fv-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 290;
+  background: rgba(15, 0, 40, .5);
+  backdrop-filter: blur(5px);
+  animation: fadeIn .2s ease;
+}
+
+.fv-mobile-drawer {
+  position: fixed;
+  top: 12px; left: 12px; bottom: 12px;
+  z-index: 300;
+  width: 250px;
+  max-width: calc(100vw - 24px);
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  transform: translateX(-120%);
+  transition: transform .26s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fv-mobile-drawer.is-open { transform: translateX(0); }
+
+.fv-drawer-close {
+  align-self: flex-end;
+  width: 30px; height: 30px;
+  border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface);
+  color: var(--brand);
+  border: 0;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+.fv-drawer-close:hover { background: var(--surface-strong); }
+
+@media (min-width: 768px) {
+  .fv-mobile-drawer, .fv-drawer-backdrop { display: none !important; }
+}
+
+/* ============================================================
+   Topbar
+   ============================================================ */
+.fv-topbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-card);
+  animation: scaleIn 0.2s ease both;
+}
+.fv-topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.fv-topbar-menu-btn {
+  flex: 0 0 auto;
+  width: 36px; height: 36px;
+  border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface);
+  color: var(--brand);
+  border: 0;
+  cursor: pointer;
+  transition: background .12s ease, color .12s ease;
+}
+.fv-topbar-menu-btn:hover { background: var(--surface-strong); }
+@media (min-width: 768px) { .fv-topbar-menu-btn { display: none; } }
+
+.fv-topbar-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--deep);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fv-topbar-sub {
+  font-size: .72rem;
+  color: var(--muted-strong);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fv-topbar-right { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; }
+
+.fv-role-pill {
+  display: none;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: .7rem;
+  font-weight: 800;
+  color: var(--brand);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+@media (min-width: 640px) { .fv-role-pill { display: inline-flex; } }
+.fv-role-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--brand-grad); flex: 0 0 auto; }
+
+.fv-icon-btn-3d {
+  position: relative;
+  width: 40px; height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  background: #fff;
+  color: var(--brand);
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(91, 33, 182, .18), 0 6px 14px rgba(91, 33, 182, .18), inset 0 1px 0 rgba(255, 255, 255, .6);
+  transition: transform .09s ease, box-shadow .09s ease;
+}
+.fv-icon-btn-3d:hover { box-shadow: 0 4px 0 rgba(91, 33, 182, .18), 0 8px 18px rgba(91, 33, 182, .22), inset 0 1px 0 rgba(255, 255, 255, .6); }
+.fv-icon-btn-3d:active { transform: translateY(3px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4); }
+
+.fv-notif-dot {
+  position: absolute;
+  top: 7px; right: 7px;
+  width: 8px; height: 8px;
+  border-radius: 999px;
+  background: var(--red);
+  border: 2px solid #fff;
+}
+
+.fv-avatar {
+  width: 40px; height: 40px;
+  border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: .78rem;
+  background: var(--brand-grad-raised);
+  box-shadow: 0 3px 0 var(--brand-shadow-color), 0 6px 14px rgba(76, 29, 149, .32), inset 0 1px 0 rgba(255, 255, 255, .35);
+}

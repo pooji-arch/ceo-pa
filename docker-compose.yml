@@ -1,0 +1,23 @@
+# Reference for running both containers together locally against a real
+# DATABASE_URL (e.g. your Supabase staging pooler) — not required for any
+# specific host, just a portable way to sanity-check the built images before
+# deploying them wherever you choose. Fill in backend/.env first.
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  app:
+    build:
+      context: ./app
+      args:
+        VITE_API_URL: http://localhost:4000
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

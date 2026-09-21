@@ -1,0 +1,635 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+@import "./frosted.css";
+
+@theme {
+  --font-sans: "Outfit", "Inter", system-ui, "Segoe UI", sans-serif;
+  --font-display: "Outfit", "Manrope", "Inter", system-ui, sans-serif;
+
+  --color-ink-900: #1a1533;
+  --color-ink-700: #453d63;
+  --color-ink-500: #6f6690;
+  --color-ink-300: #a79fc2;
+
+  --color-violet-50: #f6f4ff;
+  --color-violet-100: #ede8fe;
+  --color-violet-200: #dcd2fd;
+  --color-violet-300: #c1adfb;
+  --color-violet-400: #a582f7;
+  --color-violet-500: #8a5cf0;
+  --color-violet-600: #7440e0;
+  --color-violet-700: #5f2fc0;
+  --color-violet-800: #4b2597;
+  --color-violet-900: #372070;
+  --color-violet-950: #241147;
+
+  --shadow-3d-sm: 0 1px 2px rgba(76,42,161,0.06), 0 2px 6px rgba(76,42,161,0.08);
+  --shadow-3d: 0 2px 4px rgba(76,42,161,0.06), 0 10px 24px -8px rgba(76,42,161,0.28), inset 0 1px 0 rgba(255,255,255,0.5);
+  --shadow-3d-lg: 0 8px 16px -4px rgba(76,42,161,0.22), 0 24px 48px -12px rgba(76,42,161,0.28), inset 0 1px 0 rgba(255,255,255,0.4);
+  --shadow-3d-press: 0 1px 2px rgba(76,42,161,0.18) inset, 0 1px 0 rgba(255,255,255,0.3);
+}
+
+/* ==========================================================================
+   FROSTED VIOLET — design-system tokens (spec §1)
+   These exact names/values are relied on by other files being built in
+   parallel. Do not rename or change the values. Legacy tokens above
+   (--color-ink-*, --color-violet-*, --shadow-3d*) are kept as-is for
+   backward compatibility with existing components.
+   ========================================================================== */
+:root{
+  /* page */
+  --bg: #EDEAF8;                                   /* soft lavender base */
+  --bg-gradient:                                   /* layered ambient glow */
+    radial-gradient(ellipse at top right, rgba(245,197,24,.15) 0%, transparent 60%),
+    radial-gradient(ellipse at bottom left, rgba(176,158,242,.25) 0%, transparent 60%),
+    #EDEAF8;
+  /* brand */
+  --brand: #5B21B6;
+  --brand-grad: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  --brand-grad-raised: linear-gradient(180deg, #8b5cf6, #6d28d9);
+  --brand-shadow-color: #4c1d95;                   /* hard bottom edge on 3D controls */
+  /* text */
+  --deep: #3B0764;                                 /* headings / strong text */
+  --muted: rgba(91,33,182,.55);                    /* secondary text / idle icons */
+  --muted-strong: rgba(91,33,182,.72);
+  /* surfaces & lines */
+  --surface: rgba(91,33,182,.06);                  /* subtle tinted fill */
+  --surface-strong: rgba(91,33,182,.10);           /* active/selected fill */
+  --line: rgba(209,196,240,.40);                   /* hairline dividers */
+  --glass: rgba(255,255,255,.82);                  /* frosted card body */
+  --glass-border: rgba(255,255,255,.60);
+  /* elevation */
+  --shadow-card: 0 4px 24px rgba(91,33,182,.08), 0 0 30px 6px rgba(139,92,246,.30);
+  --shadow-btn:  0 4px 20px rgba(91,33,182,.35);
+  /* status */
+  --green:#10b981; --green-deep:#059669;
+  --red:#e11d48;   --red-deep:#be123c;
+  --amber:#f59e0b; --amber-deep:#b45309;
+  --blue:#4f7cf0;
+}
+
+/* ---------- Frosted Violet: foundation tokens ---------- */
+:root {
+  --brand: #5B21B6;
+  --brand-grad: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  --brand-grad-raised: linear-gradient(180deg, #8b5cf6, #6d28d9);
+  --brand-shadow-color: #4c1d95;
+
+  --deep: #3B0764;
+  --muted: rgba(91, 33, 182, 0.55);
+  --muted-strong: rgba(91, 33, 182, 0.72);
+
+  --surface: rgba(91, 33, 182, 0.06);
+  --surface-strong: rgba(91, 33, 182, 0.10);
+  --line: rgba(209, 196, 240, 0.40);
+  --glass: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.60);
+
+  --shadow-card: 0 4px 24px rgba(91, 33, 182, 0.08), 0 0 30px 6px rgba(139, 92, 246, 0.30);
+  --shadow-btn: 0 4px 20px rgba(91, 33, 182, 0.35);
+
+  --green: #10b981;
+  --green-deep: #059669;
+  --red: #e11d48;
+  --red-deep: #be123c;
+  --amber: #f59e0b;
+  --amber-deep: #b45309;
+  --blue: #4f7cf0;
+  --blue-deep: #3454c4;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-ink-900);
+  background: radial-gradient(1200px 600px at 100% -10%, #efe9ff 0%, transparent 60%),
+              radial-gradient(1000px 500px at -10% 110%, #eef2ff 0%, transparent 55%),
+              #f6f5fb;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 800; color: var(--deep); margin: 0; }
+
+/* ---------- typography primitives (spec §2) ---------- */
+.eyebrow, .label-eyebrow {
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted-strong);
+}
+.tabular-nums, .num-tabular { font-variant-numeric: tabular-nums; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d7cff2; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #c1b3ea; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* ---------- 3D glossy primitives ---------- */
+
+.surface {
+  background: #ffffff;
+  border: 1px solid #eee9fb;
+  border-radius: 20px;
+  box-shadow: var(--shadow-3d);
+}
+
+.surface-flat {
+  background: #ffffff;
+  border: 1px solid #eee9fb;
+  border-radius: 16px;
+  box-shadow: var(--shadow-3d-sm);
+}
+
+.tile-3d {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-3d);
+}
+.tile-3d::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 40%);
+  pointer-events: none;
+}
+.tile-3d::after {
+  content: "";
+  position: absolute;
+  left: 8%; right: 8%; bottom: -55%;
+  height: 60%;
+  background: rgba(0,0,0,0.16);
+  filter: blur(10px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.btn-3d {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  box-shadow: var(--shadow-3d-sm);
+  transform: translateY(0);
+}
+.btn-3d:hover { transform: translateY(-2px); filter: brightness(1.03); box-shadow: var(--shadow-3d); }
+.btn-3d:active { transform: translateY(1px); box-shadow: var(--shadow-3d-press); }
+.btn-3d:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-primary-3d {
+  background: linear-gradient(180deg, var(--color-violet-500), var(--color-violet-700));
+  color: white;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 8px 20px -6px rgba(93,45,196,0.55);
+}
+.btn-primary-3d:hover { box-shadow: 0 1px 0 rgba(255,255,255,0.4) inset, 0 12px 26px -6px rgba(93,45,196,0.6); }
+
+.glass-input {
+  background: var(--surface, #faf9ff);
+  border: 1px solid var(--line, #e6e0fa);
+  border-radius: 14px;
+  color: var(--deep, inherit);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.glass-input::placeholder { color: var(--muted, #a79fc2); }
+.glass-input:focus {
+  outline: none;
+  border-color: var(--brand, var(--color-violet-400));
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(139,92,246,.14);
+}
+
+.rail-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  transition: all 0.2s cubic-bezier(.2,.8,.2,1);
+}
+
+.animate-float {
+  animation: floaty 5s ease-in-out infinite;
+}
+@keyframes floaty {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.shine-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.shine-sweep::after {
+  content: "";
+  position: absolute;
+  top: -50%; left: -60%;
+  width: 40%; height: 200%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+  transform: rotate(20deg);
+  transition: left 0.6s ease;
+}
+.shine-sweep:hover::after { left: 130%; }
+
+/* ---------- tables ----------
+   Retinted onto the Frosted Violet tokens (spec §6: brand-gradient header
+   band + white uppercase labels, var(--line) hairlines, brand-tinted hover) —
+   these render inside a .frosted-card, so the table itself stays transparent
+   rather than carrying its own glass surface. */
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl thead th {
+  text-align: left; padding: 11px 16px; color: #fff;
+  font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+  background: var(--brand-grad); white-space: nowrap;
+}
+.tbl tbody td { padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; color: var(--deep); }
+.tbl tbody tr:last-child td { border-bottom: none; }
+.tbl tbody tr.row-hover:hover { background: rgba(124,58,237,.12); }
+.tbl tbody tr.overdue { background: rgba(225,29,72,.08); }
+.tbl-empty { padding: 40px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+.tbl thead th { position: sticky; top: 0; z-index: 1; }
+
+/* A fixed body height so every dashboard card stays the same size regardless
+   of how many rows/items it holds — overflow scrolls internally instead of
+   growing the card. */
+.dash-card-body { height: 300px; flex: none; }
+
+.tag-dept {
+  font-size: 10.5px; font-weight: 700; background: var(--surface-strong); color: var(--brand);
+  padding: 3px 9px; border-radius: 6px; white-space: nowrap;
+}
+
+/* ==========================================================================
+   FROSTED VIOLET — cards & surfaces (spec §6)
+   ========================================================================== */
+.frosted-card {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  animation: scaleIn 0.2s ease both;
+}
+
+.stat-tile-frosted {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.stat-tile-frosted .stat-tile-eyebrow {
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted-strong);
+}
+.stat-tile-frosted .stat-tile-value {
+  font-size: 1.5rem; font-weight: 800; color: var(--deep);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- tactile 3D buttons (spec §5) ---------- */
+.btn-3d-raised {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.65rem 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  background: var(--brand-grad-raised);
+  cursor: pointer;
+  box-shadow:
+    0 3px 0 var(--brand-shadow-color),
+    0 6px 14px rgba(76,29,149,.32),
+    inset 0 1px 0 rgba(255,255,255,.35);
+  transform: translateY(0);
+  transition: transform .09s ease, box-shadow .09s ease, background .12s ease;
+}
+.btn-3d-raised:hover {
+  box-shadow:
+    0 4px 0 var(--brand-shadow-color),
+    0 8px 18px rgba(76,29,149,.32),
+    inset 0 1px 0 rgba(255,255,255,.35);
+}
+.btn-3d-raised:active,
+.btn-3d-raised.btn-3d-sink {
+  transform: translateY(3px);
+  box-shadow:
+    0 0 0 var(--brand-shadow-color),
+    0 0 0 rgba(76,29,149,.32),
+    inset 0 1px 0 rgba(255,255,255,.2);
+}
+.btn-3d-raised:disabled {
+  opacity: 0.5; cursor: not-allowed; transform: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* Standalone "sunk in" modifier — apply to render any element in the
+   pressed/selected 3D state without requiring a live :active click. */
+.btn-3d-sink {
+  transform: translateY(3px);
+  box-shadow:
+    0 0 0 var(--brand-shadow-color),
+    0 0 0 rgba(76,29,149,.32),
+    inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* ---------- tables (spec §6) ---------- */
+.tbl-frosted {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+.tbl-frosted thead th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--brand-grad);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.tbl-frosted tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  color: var(--deep);
+}
+.tbl-frosted tbody tr:last-child td { border-bottom: none; }
+.tbl-frosted tbody tr:hover td { background: rgba(124,58,237,.12); }
+.tbl-frosted tbody tr.is-selected td {
+  background: rgba(124,58,237,.12);
+  box-shadow: inset 3px 0 0 var(--brand);
+}
+
+/* ==========================================================================
+   FROSTED VIOLET — overlays / modals (spec §7)
+   ========================================================================== */
+.frosted-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,0,40,.5);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  animation: fadeIn 0.2s ease both;
+}
+.frosted-modal {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  animation: pop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+/* Give the shell a definite height and let only this inner region scroll,
+   so the modal shell never grows past the viewport. */
+.frosted-modal-fixed {
+  height: min(88vh, 780px);
+  display: flex;
+  flex-direction: column;
+}
+.frosted-modal-scroll {
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+/* ==========================================================================
+   FROSTED VIOLET — motion library (spec §8, verbatim keyframes)
+   ========================================================================== */
+
+/* fade — overlays, generic reveal */
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+/* scale-in — cards, dropdown menus, dialogs */
+@keyframes scaleIn { from{opacity:0; transform:scale(.96)} to{opacity:1; transform:scale(1)} }
+
+/* springy pop — primary modal / detail card entrance (3D tilt + overshoot) */
+@keyframes pop {
+  from{ opacity:0; transform: translateY(22px) perspective(1400px) rotateX(6deg) scale(.94); }
+  to  { opacity:1; transform: translateY(0)   perspective(1400px) rotateX(.6deg) scale(1); }
+}
+
+/* soft modal-in — lighter sheets/popovers */
+@keyframes modalIn { from{opacity:0; transform:translateY(8px) scale(.98)} to{opacity:1; transform:none} }
+
+/* horizontal swap — switching tabs / panes (content slides in from the right) */
+@keyframes swapIn { from{opacity:0; transform:translateX(28px)} to{opacity:1; transform:none} }
+
+/* list / detail slide — rows, side panels */
+@keyframes slideInX { from{opacity:0; transform:translateX(26px)} to{opacity:1; transform:none} }
+
+/* incoming item drop — newly arriving row/toast */
+@keyframes dropIn { from{opacity:0; transform:translateY(-10px) scale(.97)} to{opacity:1; transform:none} }
+
+/* bar grow — chart bars rise from their baseline */
+@keyframes barGrow { from{transform:scaleY(.02)} to{transform:scaleY(1)} }
+
+/* pop-badge — counters / streak badges */
+@keyframes badgePop { from{opacity:0; transform:scale(.7)} to{opacity:1; transform:scale(1)} }
+
+/* spinner — loaders / refresh icons */
+@keyframes spin { to{ transform: rotate(360deg); } }
+
+/* attention pulse — live/recording/alert dots (expanding ring) */
+@keyframes pulse { 0%,100%{ box-shadow:0 0 0 0 rgba(239,68,68,.5) } 50%{ box-shadow:0 0 0 8px rgba(239,68,68,0) } }
+
+/* glow pulse — highlight a "hot" card (soft brand halo breathing) */
+@keyframes glowPulse { 0%,100%{ box-shadow: var(--shadow-card) } 50%{ box-shadow: 0 4px 24px rgba(91,33,182,.14), 0 0 44px 10px rgba(139,92,246,.45) } }
+
+/* bounce dots — typing / thinking indicator */
+@keyframes bounce { 0%,60%,100%{ transform:translateY(0); opacity:.5 } 30%{ transform:translateY(-5px); opacity:1 } }
+
+/* shimmer sweep — skeleton loaders / shiny title (animate background-position of a
+   gradient across the element) */
+@keyframes shimmer { from{ background-position:220% 0 } to{ background-position:-220% 0 } }
+
+/* blink caret / status */
+@keyframes blink { 50%{ opacity:.45 } }
+
+/* ---------- animation utility classes ---------- */
+.anim-fadeIn     { animation: fadeIn 0.2s ease both; }
+.anim-scaleIn    { animation: scaleIn 0.2s ease both; }
+.anim-pop        { animation: pop 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.anim-modalIn    { animation: modalIn 0.2s ease both; }
+.anim-swapIn     { animation: swapIn 0.22s ease both; }
+.anim-slideInX   { animation: slideInX 0.2s ease both; }
+.anim-dropIn     { animation: dropIn 0.2s ease both; }
+.anim-barGrow    { animation: barGrow 0.5s ease both; transform-origin: bottom; }
+.anim-badgePop   { animation: badgePop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.anim-spin       { animation: spin 0.8s linear infinite; }
+.anim-pulse      { animation: pulse 1.6s ease-in-out infinite; }
+.anim-glowPulse  { animation: glowPulse 2.4s ease-in-out infinite; }
+.anim-bounce     { animation: bounce 1.2s ease-in-out infinite; }
+.anim-shimmer    {
+  background-image: linear-gradient(90deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
+  background-size: 220% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+.anim-blink      { animation: blink 1s ease-in-out infinite; }
+
+/* stagger helpers — cascade siblings ~40ms apart (cards/tiles per §8) */
+.anim-stagger > * { animation-fill-mode: both; }
+.anim-stagger > *:nth-child(1)  { animation-delay: 0ms; }
+.anim-stagger > *:nth-child(2)  { animation-delay: 40ms; }
+.anim-stagger > *:nth-child(3)  { animation-delay: 80ms; }
+.anim-stagger > *:nth-child(4)  { animation-delay: 120ms; }
+.anim-stagger > *:nth-child(5)  { animation-delay: 160ms; }
+.anim-stagger > *:nth-child(6)  { animation-delay: 200ms; }
+.anim-stagger > *:nth-child(7)  { animation-delay: 240ms; }
+.anim-stagger > *:nth-child(8)  { animation-delay: 280ms; }
+.anim-stagger > *:nth-child(n+9){ animation-delay: 320ms; }
+
+/* ==========================================================================
+   FROSTED VIOLET — accessibility (spec §9)
+   ========================================================================== */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   FROSTED VIOLET — Button / Pill / Field restyle (spec §5)
+   Scoped under an "fv-" prefix so it can't collide with any other file's
+   classes. Consumed only by src/components/ui/{Button,Pill,Field}.tsx.
+   ========================================================================== */
+.fv-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform .09s ease, box-shadow .09s ease, background .12s ease,
+              color .12s ease, border-color .12s ease;
+}
+.fv-btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+/* primary — raised pill: lifts on hover, sinks on press */
+.fv-btn-primary {
+  background: var(--brand-grad-raised);
+  color: #fff;
+  border: 0;
+  box-shadow: 0 3px 0 var(--brand-shadow-color), 0 6px 14px rgba(76,29,149,.32), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.fv-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--brand-shadow-color), 0 8px 18px rgba(76,29,149,.38), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.fv-btn-primary:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--brand-shadow-color), 0 1px 4px rgba(76,29,149,.25), inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* secondary / outline — frosted clear-glass pill */
+.fv-btn-glass {
+  background: var(--glass);
+  color: var(--brand);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 1px 2px rgba(91,33,182,.08), inset 0 1px 0 rgba(255,255,255,.6);
+}
+.fv-btn-glass:hover:not(:disabled) { background: #fff; border-color: var(--brand); }
+.fv-btn-glass:active:not(:disabled) { transform: translateY(1px); }
+
+/* ghost — transparent, tints on hover */
+.fv-btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  box-shadow: none;
+}
+.fv-btn-ghost:hover:not(:disabled) { background: var(--surface); color: var(--brand); }
+.fv-btn-ghost:active:not(:disabled) { transform: translateY(1px); }
+
+/* soft — light tinted fill */
+.fv-btn-soft {
+  background: var(--surface-strong);
+  color: var(--brand);
+  border: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+}
+.fv-btn-soft:hover:not(:disabled) { background: rgba(91,33,182,.16); }
+.fv-btn-soft:active:not(:disabled) { transform: translateY(1px); }
+
+/* danger — glass with a red edge */
+.fv-btn-danger {
+  background: var(--glass);
+  color: var(--red-deep);
+  border: 1px solid rgba(225,29,72,.30);
+  box-shadow: 0 1px 2px rgba(225,29,72,.08), inset 0 1px 0 rgba(255,255,255,.6);
+}
+.fv-btn-danger:hover:not(:disabled) { background: rgba(225,29,72,.08); border-color: var(--red); }
+.fv-btn-danger:active:not(:disabled) { transform: translateY(1px); }
+
+/* status / priority pills — tone tokens from spec §1 */
+.fv-pill-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+}
+.fv-pill-priority {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  font-weight: 800;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 10.5px;
+}
+.fv-tone-green   { background: rgba(16,185,129,.14);  color: var(--green-deep); }
+.fv-tone-red     { background: rgba(225,29,72,.12);   color: var(--red-deep); }
+.fv-tone-amber   { background: rgba(245,158,11,.16);  color: var(--amber-deep); }
+.fv-tone-blue    { background: rgba(79,124,240,.16);  color: #3454c4; }
+.fv-tone-neutral { background: var(--surface-strong); color: var(--muted-strong); }
+.fv-tone-violet  { background: var(--surface-strong); color: var(--brand); }

@@ -1,0 +1,377 @@
+// CEO (PA) Application — Prisma schema
+// Mirrors every entity currently in app/src/store/types.ts field-for-field.
+// Connection is read from DATABASE_URL (never hardcoded here) — see .env.example.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  CEO
+  PA
+}
+
+enum Priority {
+  Low
+  Medium
+  High
+  Critical
+}
+
+enum ApprovalStatus {
+  Pending
+  Approved
+  Rejected
+  Postponed
+}
+
+enum MeetingLinkStatus {
+  Pending
+  Scheduled
+  Cancelled
+}
+
+enum TaskStatus {
+  New
+  InProgress   @map("In Progress")
+  Completed
+  Postponed
+  Cancelled
+  Blocked
+}
+
+enum MeetingStatus {
+  Scheduled
+  Completed
+  Cancelled
+}
+
+enum ActionPointStatus {
+  New
+  InProgress @map("In Progress")
+  Completed
+}
+
+enum KaizenStatus {
+  New
+  UnderProcess @map("Under Process")
+  Hold
+  Completed
+}
+
+enum KaizenApproval {
+  Hold
+  Approved
+  NotApproved      @map("Not Approved")
+  AlreadyInPlan     @map("Already in Plan")
+  AlreadyThere      @map("Already there")
+  NSI
+  GivenIdea         @map("Given idea")
+  CheckWithCeoDr    @map("Check with CEO/DR")
+}
+
+enum MilestoneStatus {
+  NA
+  OnTimeCompletion  @map("On-time Completion")
+  OverdueCompletion @map("Overdue Completion")
+  Hold
+}
+
+enum YesNoNA {
+  Unset @map("-")
+  Yes
+  No
+  NA
+}
+
+enum DietStatus {
+  Pending
+  InProgress @map("In Progress")
+  Completed
+}
+
+enum OtherTaskStatus {
+  New
+  InProgress @map("In Progress")
+  Completed
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String? // null for Google-only accounts
+  googleId     String?  @unique
+  name         String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  notifications AppNotification[]
+}
+
+// ---------------------------------------------------------------------------
+// Appointments & Visitors
+// ---------------------------------------------------------------------------
+
+model Appointment {
+  id        String            @id @default(cuid())
+  requester String
+  dept      String
+  purpose   String
+  date      DateTime          @db.Date
+  time      String
+  priority  Priority
+  approval  ApprovalStatus    @default(Pending)
+  meeting   MeetingLinkStatus @default(Pending)
+  reason    String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([date])
+}
+
+model VisitorHistoryEntry {
+  id      String   @id @default(cuid())
+  name    String
+  date    DateTime @db.Date
+  purpose String
+  outcome String
+}
+
+model UnplannedVisitor {
+  id        String   @id @default(cuid())
+  name      String
+  purpose   String
+  decision  String
+  remarks   String
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Tasks, Meetings & Action Points
+// ---------------------------------------------------------------------------
+
+model Task {
+  id               String     @id @default(cuid())
+  title            String
+  description      String?
+  owner            String
+  dept             String
+  priority         Priority
+  status           TaskStatus @default(New)
+  due              DateTime   @db.Date
+  followup         DateTime   @db.Date
+  remarks          String     @default("")
+  completion       DateTime?  @db.Date
+  outcome          String?
+  attachment       String?
+  notifiedOverdueAt DateTime? // set once an "overdue" notification has fired, so the periodic check never repeats it
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([due])
+  @@index([status])
+}
+
+model Meeting {
+  id           String        @id @default(cuid())
+  purpose      String
+  participants String
+  date         DateTime      @db.Date
+  time         String
+  agenda       String
+  status       MeetingStatus @default(Scheduled)
+
+  actionPoints ActionPoint[]
+
+  @@index([date])
+}
+
+model ActionPoint {
+  id        String             @id @default(cuid())
+  meetingId String
+  meeting   Meeting            @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  point     String
+  owner     String
+  due       DateTime           @db.Date
+  status    ActionPointStatus  @default(New)
+}
+
+// ---------------------------------------------------------------------------
+// Kaizen
+// ---------------------------------------------------------------------------
+
+model Department {
+  id   String @id @default(cuid())
+  name String @unique
+  code String @unique
+}
+
+model KaizenIdea {
+  id              String         @id @default(cuid())
+  dept            String
+  deptCode        String
+  date            DateTime       @db.Date
+  title           String
+  champion        String // "Owner" in the UI
+  executedBy      String[]       @default([])
+  impactDept      String         @default("")
+  approval        KaizenApproval @default(Hold)
+  status          KaizenStatus   @default(New)
+  projectEndDate  DateTime?      @db.Date
+  impact          String         @default("")
+  impactTimeline  String         @default("")
+  impactResult    String         @default("-")
+  completionMonth String         @default("-")
+  scoringStatus   String         @default("-")
+  impactStudy     String         @default("")
+  yesNo           YesNoNA        @default(Unset)
+  addToEffort     YesNoNA        @default(Unset)
+  resultDocLink   String         @default("")
+  progress        Int            @default(5)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  milestones   Milestone[]
+  contributors Contributor[]
+
+  @@index([dept])
+  @@index([date])
+  @@index([status])
+}
+
+model Milestone {
+  id             String          @id @default(cuid())
+  kaizenIdeaId   String
+  kaizenIdea     KaizenIdea      @relation(fields: [kaizenIdeaId], references: [id], onDelete: Cascade)
+  title          String          @default("") // server sets "Milestone N" on create
+  startDate      DateTime?       @db.Date
+  endDate        DateTime?       @db.Date
+  secondEndDate  DateTime?       @db.Date
+  completedDate  DateTime?       @db.Date
+  status         MilestoneStatus @default(NA)
+  notifiedDueAt  DateTime? // set once a "due" notification has fired, so the periodic check never repeats it
+  createdAt      DateTime        @default(now()) // drives auto-numbering order
+
+  @@index([kaizenIdeaId])
+  @@index([endDate])
+}
+
+model Contributor {
+  id           String     @id @default(cuid())
+  kaizenIdeaId String
+  kaizenIdea   KaizenIdea @relation(fields: [kaizenIdeaId], references: [id], onDelete: Cascade)
+  name         String
+  idea         Float      @default(0)
+  execution    Float      @default(0)
+  ontime       Float      @default(0)
+  impact       Float      @default(0)
+
+  @@unique([kaizenIdeaId, name])
+}
+
+// ---------------------------------------------------------------------------
+// CEO Weekly Scoring
+// ---------------------------------------------------------------------------
+
+model WeeklyScore {
+  id         String    @id @default(cuid())
+  monthLabel String
+  weekLabel  String
+  rangeLabel String
+
+  days DayWork[]
+}
+
+model DayWork {
+  id            String      @id @default(cuid())
+  weeklyScoreId String
+  weeklyScore   WeeklyScore @relation(fields: [weeklyScoreId], references: [id], onDelete: Cascade)
+  date          DateTime    @db.Date
+  label         String // "Mon".."Sat"
+  hours         Int         @default(0)
+  notes         String      @default("")
+
+  @@unique([weeklyScoreId, date])
+}
+
+model DayNote {
+  date    DateTime @id @db.Date
+  planned String   @default("")
+  actuals String[] @default([])
+}
+
+// ---------------------------------------------------------------------------
+// Diet, Daily Activities, Other Tasks
+// ---------------------------------------------------------------------------
+
+model DietQuery {
+  id          String     @id @default(cuid())
+  query       String
+  requester   String
+  responsible String
+  date        DateTime   @db.Date
+  followup    DateTime   @db.Date
+  status      DietStatus @default(Pending)
+  remarks     String     @default("")
+  resolution  String?
+
+  @@index([date])
+  @@index([followup])
+}
+
+model DailyActivity {
+  id      String   @id @default(cuid())
+  date    DateTime @db.Date
+  type    String // Meeting | Task | Follow-up | Decision | Important Activity
+  desc    String
+  outcome String
+
+  @@index([date])
+}
+
+model OtherTask {
+  id     String          @id @default(cuid())
+  title  String
+  owner  String
+  due    DateTime        @db.Date
+  status OtherTaskStatus @default(New)
+
+  @@index([due])
+}
+
+// ---------------------------------------------------------------------------
+// Notifications & Audit Log
+// ---------------------------------------------------------------------------
+
+model AppNotification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  icon      String
+  text      String
+  time      String
+  unread    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([userId, unread])
+}
+
+model AuditEntry {
+  id     String   @id @default(cuid())
+  ts     DateTime @default(now())
+  user   String
+  action String
+}

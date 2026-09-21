@@ -1,0 +1,333 @@
+/* ------------------------------------------------------------------ */
+/* WeeklySchedule — Frosted Violet restyle (page-scoped, self-contained) */
+/* Values mirror the shared "Frosted Violet" design-system spec exactly, */
+/* namespaced with a ws- prefix so this file can never collide with     */
+/* tokens/classes another page or the global stylesheet may also add.   */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --ws-brand: #5B21B6;
+  --ws-brand-grad: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  --ws-brand-grad-raised: linear-gradient(180deg, #8b5cf6, #6d28d9);
+  --ws-brand-shadow: #4c1d95;
+  --ws-deep: #3B0764;
+  --ws-muted: rgba(91, 33, 182, 0.55);
+  --ws-muted-strong: rgba(91, 33, 182, 0.72);
+  --ws-surface: rgba(91, 33, 182, 0.06);
+  --ws-surface-strong: rgba(91, 33, 182, 0.1);
+  --ws-line: rgba(209, 196, 240, 0.4);
+  --ws-glass: rgba(255, 255, 255, 0.82);
+  --ws-glass-border: rgba(255, 255, 255, 0.6);
+  --ws-shadow-card: 0 4px 24px rgba(91, 33, 182, 0.08), 0 0 30px 6px rgba(139, 92, 246, 0.3);
+  --ws-green: #10b981;
+  --ws-red: #e11d48;
+  --ws-red-deep: #be123c;
+  --ws-amber: #f59e0b;
+  --ws-amber-deep: #b45309;
+  --ws-blue: #4f7cf0;
+}
+
+@keyframes ws-swapIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ws-dropIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ws-pill,
+  .ws-swap {
+    animation: none !important;
+  }
+}
+
+/* frost the two calendar cards without touching the shared Card component */
+.ws-glass-card.surface {
+  background: var(--ws-glass) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--ws-glass-border) !important;
+  box-shadow: var(--ws-shadow-card) !important;
+  border-radius: 20px !important;
+}
+
+.ws-swap {
+  animation: ws-swapIn 0.22s ease both;
+}
+
+.ws-eyebrow {
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ws-muted-strong);
+}
+
+/* month navigation */
+.ws-navbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--ws-glass);
+  border: 1px solid var(--ws-glass-border);
+  color: var(--ws-brand);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 2px 8px rgba(91, 33, 182, 0.12);
+  transition: transform 0.09s ease, box-shadow 0.09s ease, background 0.12s ease;
+}
+.ws-navbtn:hover {
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 4px 14px rgba(91, 33, 182, 0.2);
+}
+.ws-navbtn:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+.ws-navbtn:focus-visible {
+  outline: 2px solid var(--ws-brand);
+  outline-offset: 3px;
+}
+
+.ws-monthlabel {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--ws-surface-strong);
+  color: var(--ws-brand);
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+/* segmented grid/list toggle */
+.ws-segment {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--ws-surface);
+}
+.ws-segbtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ws-muted-strong);
+  background: transparent;
+  border: 0;
+  transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease, transform 0.09s ease;
+}
+.ws-segbtn:hover {
+  background: rgba(91, 33, 182, 0.08);
+  color: var(--ws-brand);
+}
+.ws-segbtn.active {
+  background: var(--ws-brand-grad-raised);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--ws-brand-shadow), 0 4px 10px rgba(76, 29, 149, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.ws-segbtn.active:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+.ws-segbtn:focus-visible {
+  outline: 2px solid var(--ws-brand);
+  outline-offset: 3px;
+}
+
+/* month grid */
+.ws-dow {
+  text-align: center;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ws-muted-strong);
+  padding-bottom: 8px;
+}
+.ws-daycell {
+  min-height: 120px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid var(--ws-line);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.ws-daycell:hover {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(139, 92, 246, 0.35);
+}
+.ws-daycell.out-of-month {
+  background: rgba(91, 33, 182, 0.02);
+  border-color: transparent;
+}
+
+.ws-quickadd {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  background: var(--ws-brand-grad-raised);
+  box-shadow: 0 2px 6px rgba(76, 29, 149, 0.4);
+  transition: opacity 0.12s ease, transform 0.09s ease;
+}
+.ws-quickadd:hover {
+  transform: scale(1.1);
+}
+.ws-quickadd:active {
+  transform: scale(0.95);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ws-quickadd {
+    transition: none;
+  }
+}
+.ws-daynum {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.ws-daynum.today {
+  background: linear-gradient(180deg, #fb7185, #e11d48);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--ws-red-deep), 0 3px 8px rgba(225, 29, 72, 0.35);
+}
+.ws-daynum.in-month {
+  color: var(--ws-deep);
+}
+.ws-daynum.out-month {
+  color: var(--ws-muted);
+  opacity: 0.6;
+}
+
+.ws-pill {
+  border-radius: 8px;
+  padding: 4px 7px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.3;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  min-width: 0;
+  animation: ws-dropIn 0.18s ease both;
+}
+.ws-pill.planned {
+  border: 1px dashed rgba(107, 114, 128, 0.35);
+  font-style: italic;
+}
+.ws-pill.fell-through {
+  border: 1px solid rgba(225, 29, 72, 0.3);
+  text-decoration: line-through;
+  text-decoration-color: rgba(225, 29, 72, 0.5);
+}
+.ws-pill-label {
+  /* flex:1 + min-width:0 is required here — without it a flex child with no
+     explicit size can get measured against a near-zero available width in
+     a deeply nested flex/grid chain, which forces text to wrap one
+     character per line instead of at normal word boundaries. */
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+.ws-pill-note {
+  font-weight: 800;
+  opacity: 0.85;
+}
+
+/* list view table */
+.ws-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.ws-table thead th {
+  text-align: left;
+  padding: 10px 16px;
+  font-weight: 800;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  background: var(--ws-brand-grad);
+  white-space: nowrap;
+}
+.ws-table thead th:first-child {
+  border-top-left-radius: 12px;
+}
+.ws-table thead th:last-child {
+  border-top-right-radius: 12px;
+}
+.ws-table tbody td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--ws-line);
+  color: var(--ws-deep);
+  vertical-align: middle;
+}
+.ws-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.ws-table tbody tr:hover td {
+  background: rgba(124, 58, 237, 0.12);
+}
+.ws-empty {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--ws-muted);
+  font-style: italic;
+}
+.ws-type-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.ws-status-note {
+  font-size: 0.68rem;
+  font-weight: 800;
+  font-style: italic;
+  color: #4b5563;
+  background: rgba(107, 114, 128, 0.14);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.ws-status-ok {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--ws-green);
+  background: rgba(16, 185, 129, 0.14);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.ws-status-fell-through {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--ws-red-deep);
+  background: rgba(225, 29, 72, 0.14);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
