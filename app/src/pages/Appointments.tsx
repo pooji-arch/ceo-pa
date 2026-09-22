@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Plus, UserPlus, Info } from "lucide-react";
+import { Plus, UserPlus, Info, CalendarX2 } from "lucide-react";
 import { Card, CardHead } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { Pill, PriorityTag } from "../components/ui/Pill";
@@ -34,7 +34,7 @@ function RescheduleModal({
     <Modal
       open={!!id}
       onClose={onClose}
-      title={`Reschedule ${appt.id}`}
+      title={`Reschedule — ${appt.requester}`}
       width={400}
       footer={
         <>
@@ -68,6 +68,7 @@ export default function Appointments() {
 
   const [statusFilter, setStatusFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [apptModalOpen, setApptModalOpen] = useState(false);
   const [unplannedOpen, setUnplannedOpen] = useState(false);
   const [rescheduleId, setRescheduleId] = useState<string | null>(null);
@@ -78,9 +79,10 @@ export default function Appointments() {
       appointments.filter(
         (a) =>
           (!statusFilter || a.approval === statusFilter) &&
+          (!dateFilter || a.date === dateFilter) &&
           (!search || (a.requester + a.purpose + a.dept).toLowerCase().includes(search.toLowerCase()))
       ),
-    [appointments, statusFilter, search]
+    [appointments, statusFilter, dateFilter, search]
   );
 
   const handleAction = (id: string, status: ApprovalStatus) => {
@@ -104,6 +106,17 @@ export default function Appointments() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <input
+          type="date"
+          className="glass-input px-3 py-2 text-[12.5px]"
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+        />
+        {dateFilter && (
+          <Button variant="ghost" size="sm" icon={<CalendarX2 size={13} />} onClick={() => setDateFilter("")}>
+            Clear
+          </Button>
+        )}
         <div className="flex-1" />
         {isPA && (
           <>
@@ -124,24 +137,31 @@ export default function Appointments() {
           <table className="tbl">
             <thead>
               <tr>
-                <th>ID</th><th>Requester</th><th>Dept</th><th>Purpose</th><th>Date / Time</th>
-                <th>Priority</th><th>Approval</th><th>Meeting</th><th></th>
+                <th>Requester</th><th>Dept</th><th>Purpose</th><th className="whitespace-nowrap">Date / Time</th>
+                <th>Priority</th><th>Approval</th><th></th>
               </tr>
             </thead>
             <tbody>
-              {loading ? <LoadingRow colSpan={9} /> : rows.length ? rows.map((a) => (
+              {loading ? <LoadingRow colSpan={7} /> : rows.length ? rows.map((a) => (
                 <tr key={a.id} className="row-hover">
-                  <td className="font-semibold text-violet-700">{a.id}</td>
-                  <td>{a.requester}</td>
+                  <td>
+                    <div className="font-semibold">{a.requester}</div>
+                    {a.visitors.length > 0 && (
+                      <div className="text-[11px] mt-0.5" style={{ color: "var(--muted-strong)" }}>
+                        +{a.visitors.length} visitor{a.visitors.length === 1 ? "" : "s"}: {a.visitors.join(", ")}
+                      </div>
+                    )}
+                  </td>
                   <td><span className="tag-dept">{a.dept}</span></td>
                   <td>{a.purpose}</td>
-                  <td>{fmtDate(a.date)}, {a.time}</td>
+                  <td className="whitespace-nowrap">{fmtDate(a.date)}, {a.time}</td>
                   <td><PriorityTag priority={a.priority} /></td>
-                  <td className="flex items-center gap-1.5 py-3">
-                    <Pill status={a.approval} />
-                    {a.reason && <span title={a.reason}><Info size={13} className="text-ink-300 cursor-help" /></span>}
+                  <td>
+                    <div className="flex items-center gap-1.5">
+                      <Pill status={a.approval} />
+                      {a.reason && <span title={a.reason}><Info size={13} className="text-ink-300 cursor-help shrink-0" /></span>}
+                    </div>
                   </td>
-                  <td><Pill status={a.meeting} /></td>
                   <td className="whitespace-nowrap">
                     <div className="flex gap-1.5">
                       {isCEO && (
@@ -160,7 +180,7 @@ export default function Appointments() {
                     </div>
                   </td>
                 </tr>
-              )) : <tr><td colSpan={9} className="tbl-empty">No matching appointments.</td></tr>}
+              )) : <tr><td colSpan={7} className="tbl-empty">No matching appointments.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -180,7 +200,7 @@ export default function Appointments() {
         </div>
       </Card>
 
-      <AppointmentModal open={apptModalOpen} onClose={() => setApptModalOpen(false)} onCreate={createAppointment} />
+      <AppointmentModal open={apptModalOpen} onClose={() => setApptModalOpen(false)} onCreate={createAppointment} appointments={appointments} />
       <UnplannedVisitorModal open={unplannedOpen} onClose={() => setUnplannedOpen(false)} onLog={logUnplannedVisitor} />
       <RescheduleModal id={rescheduleId} appointments={appointments} onReschedule={rescheduleAppointment} onClose={() => setRescheduleId(null)} />
       <ReasonModal

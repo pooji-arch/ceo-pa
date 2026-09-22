@@ -8,6 +8,11 @@ export const createAppointmentSchema = z.object({
   time: z.string().min(1),
   priority: z.enum(["Low", "Medium", "High", "Critical"]),
   approval: z.enum(["Pending", "Approved", "Rejected"]).default("Pending"),
+  visitors: z.array(z.string().min(1)).default([]),
+  // Set when the PA explicitly confirmed booking despite a scheduling
+  // conflict the frontend detected — recorded on `reason` so that intent
+  // isn't silently lost.
+  force: z.boolean().optional().default(false),
 });
 
 export const approvalActionSchema = z.object({

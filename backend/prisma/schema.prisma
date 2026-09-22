@@ -141,6 +141,7 @@ model Appointment {
   approval  ApprovalStatus    @default(Pending)
   meeting   MeetingLinkStatus @default(Pending)
   reason    String?
+  visitors  String[]          @default([]) // names entered comma-separated on the request form
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 

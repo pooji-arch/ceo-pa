@@ -33,10 +33,13 @@ appointmentsRouter.post(
   validateBody(createAppointmentSchema),
   async (req, res, next) => {
     try {
-      const { requester, dept, purpose, date, time, priority, approval } = req.body;
+      const { requester, dept, purpose, date, time, priority, approval, visitors, force } = req.body;
       const meeting = approval === "Approved" ? "Scheduled" : "Pending";
       const appointment = await prisma.appointment.create({
-        data: { requester, dept, purpose, date: toDateOnly(date), time, priority, approval, meeting },
+        data: {
+          requester, dept, purpose, date: toDateOnly(date), time, priority, approval, meeting, visitors,
+          reason: force ? "Booked despite a scheduling conflict (confirmed by PA)" : undefined,
+        },
       });
       if (approval === "Pending") {
         await notify("📅", `New appointment request from ${requester} (${dept}) awaiting your approval.`);

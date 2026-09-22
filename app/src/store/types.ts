@@ -16,6 +16,7 @@ export interface Appointment {
   approval: ApprovalStatus;
   meeting: MeetingLinkStatus;
   reason?: string;
+  visitors: string[];
 }
 
 export interface VisitorHistoryEntry {

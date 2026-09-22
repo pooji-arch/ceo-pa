@@ -9,7 +9,7 @@ export function useAppointments() {
   const toast = useToast();
 
   const createAppointment = useCallback(
-    async (input: { requester: string; dept: string; purpose: string; date: string; time: string; priority: Priority; approval?: ApprovalStatus }) => {
+    async (input: { requester: string; dept: string; purpose: string; date: string; time: string; priority: Priority; approval?: ApprovalStatus; visitors?: string[]; force?: boolean }) => {
       if (!token) return;
       try {
         const appt = await api.appointments.create(token, input);

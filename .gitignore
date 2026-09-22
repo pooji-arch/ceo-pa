@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Microsoft Office lock files (created whenever a .docx/.xlsx is open).
+~$*
+
 # Claude Code session data — local only, never part of the app.
 /.claude/
 

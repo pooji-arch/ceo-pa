@@ -1,4 +1,4 @@
-import type { Department, WeeklyScore } from "../store/types";
+import type { Appointment, Department, WeeklyScore } from "../store/types";
 
 // Computed once per page load from the real clock — the original prototype
 // froze this at a fixed demo date ("2026-09-10"), which was fine for a
@@ -81,6 +81,32 @@ export function nowTimeString(): string {
 
 export function cx(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
+}
+
+/** Default slot length assumed for every appointment, used only for
+ * conflict detection — the data model has no explicit end-time/duration
+ * field, so this is the smallest safe stand-in for real time-range overlap
+ * checking rather than inventing a new scheduling concept for it. */
+export const APPOINTMENT_SLOT_MINUTES = 30;
+
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
+}
+
+/** Appointments on the same date whose assumed [start, start+30min) window
+ * overlaps the given date/time. Rejected requests are excluded since a
+ * declined request no longer holds the slot. */
+export function findAppointmentConflicts(appointments: Appointment[], date: string, time: string): Appointment[] {
+  if (!date || !time) return [];
+  const start = timeToMinutes(time);
+  const end = start + APPOINTMENT_SLOT_MINUTES;
+  return appointments.filter((a) => {
+    if (a.approval === "Rejected" || a.date !== date) return false;
+    const aStart = timeToMinutes(a.time);
+    const aEnd = aStart + APPOINTMENT_SLOT_MINUTES;
+    return start < aEnd && aStart < end;
+  });
 }
 
 /** Standard working day, per the real weekly-tracker sheet this mirrors. */

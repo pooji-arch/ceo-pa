@@ -50,9 +50,10 @@ function d(iso: string): string {
 interface AppointmentDto {
   id: string; requester: string; dept: string; purpose: string; date: string; time: string;
   priority: Priority; approval: ApprovalStatus; meeting: Appointment["meeting"]; reason: string | null;
+  visitors: string[];
 }
 function mapAppointment(a: AppointmentDto): Appointment {
-  return { id: a.id, requester: a.requester, dept: a.dept, purpose: a.purpose, date: d(a.date), time: a.time, priority: a.priority, approval: a.approval, meeting: a.meeting, reason: a.reason ?? undefined };
+  return { id: a.id, requester: a.requester, dept: a.dept, purpose: a.purpose, date: d(a.date), time: a.time, priority: a.priority, approval: a.approval, meeting: a.meeting, reason: a.reason ?? undefined, visitors: a.visitors ?? [] };
 }
 
 interface VisitorHistoryDto { id: string; name: string; date: string; purpose: string; outcome: string }
@@ -214,7 +215,7 @@ export const api = {
 
   appointments: {
     list: async (token: string) => (await request<{ appointments: AppointmentDto[] }>("/appointments", { token })).appointments.map(mapAppointment),
-    create: async (token: string, input: { requester: string; dept: string; purpose: string; date: string; time: string; priority: Priority; approval?: ApprovalStatus }) =>
+    create: async (token: string, input: { requester: string; dept: string; purpose: string; date: string; time: string; priority: Priority; approval?: ApprovalStatus; visitors?: string[]; force?: boolean }) =>
       mapAppointment((await request<{ appointment: AppointmentDto }>("/appointments", { method: "POST", token, body: JSON.stringify(input) })).appointment),
     act: async (token: string, id: string, status: "Approved" | "Rejected" | "Postponed", reason?: string) =>
       mapAppointment((await request<{ appointment: AppointmentDto }>(`/appointments/${id}/approval`, { method: "PATCH", token, body: JSON.stringify({ status, reason }) })).appointment),
