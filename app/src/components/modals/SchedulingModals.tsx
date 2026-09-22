@@ -4,6 +4,7 @@ import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { Pill } from "../ui/Pill";
 import { FieldRow, SelectField, TextAreaField, TextField } from "../ui/Field";
+import { DateField } from "../ui/DatePicker";
 import { fmtDate, findAppointmentConflicts } from "../../lib/utils";
 import type { Appointment, ApprovalStatus, Priority } from "../../store/types";
 
@@ -13,11 +14,15 @@ export interface CreateAppointmentInput {
 }
 
 /** Read-only day schedule shown inline so the PA can check the CEO's
- * existing bookings without leaving the New Appointment Request form —
- * opened from the "Check Schedule" button next to the date/time fields. */
-function DaySchedulePanel({ date, appointments }: { date: string; appointments: Appointment[] }) {
+ * existing bookings without leaving the current form — opened from the
+ * "Check Schedule" button next to the date/time fields. Shared by both New
+ * Appointment Request and Reschedule instead of building it twice. */
+export function DaySchedulePanel({ date, appointments }: { date: string; appointments: Appointment[] }) {
   const dayAppts = useMemo(
-    () => appointments.filter((a) => a.date === date && a.approval !== "Rejected").sort((a, b) => a.time.localeCompare(b.time)),
+    () =>
+      appointments
+        .filter((a) => a.date === date && !["Rejected", "Cancelled", "Completed"].includes(a.approval))
+        .sort((a, b) => a.time.localeCompare(b.time)),
     [appointments, date]
   );
 
@@ -57,6 +62,7 @@ export function AppointmentModal({
   const [requester, setRequester] = useState("");
   const [dept, setDept] = useState("");
   const [purpose, setPurpose] = useState("");
+  const [purposeError, setPurposeError] = useState(false);
   const [visitorsText, setVisitorsText] = useState("");
   const [date, setDate] = useState("2026-09-12");
   const [time, setTime] = useState("11:00");
@@ -66,7 +72,7 @@ export function AppointmentModal({
   const [conflicts, setConflicts] = useState<Appointment[] | null>(null);
 
   const reset = () => {
-    setRequester(""); setDept(""); setPurpose(""); setVisitorsText("");
+    setRequester(""); setDept(""); setPurpose(""); setPurposeError(false); setVisitorsText("");
     setScheduleOpen(false); setConflicts(null);
   };
 
@@ -75,7 +81,7 @@ export function AppointmentModal({
     onCreate({
       requester: requester || "New Requester",
       dept: dept || "General",
-      purpose: purpose || "General meeting",
+      purpose,
       date,
       time,
       priority,
@@ -88,6 +94,10 @@ export function AppointmentModal({
   };
 
   const submit = () => {
+    if (!purpose.trim()) {
+      setPurposeError(true);
+      return;
+    }
     const found = findAppointmentConflicts(appointments, date, time);
     if (found.length) {
       setConflicts(found);
@@ -119,7 +129,16 @@ export function AppointmentModal({
         <TextField label="Requester" placeholder="e.g. Rohan Mehta" value={requester} onChange={(e) => setRequester(e.target.value)} />
         <TextField label="Department" placeholder="e.g. Finance" value={dept} onChange={(e) => setDept(e.target.value)} />
       </FieldRow>
-      <TextField label="Purpose" placeholder="e.g. Budget sign-off discussion" value={purpose} onChange={(e) => setPurpose(e.target.value)} />
+      <div>
+        <TextField
+          label="Purpose *"
+          placeholder="e.g. Budget sign-off discussion"
+          value={purpose}
+          onChange={(e) => { setPurpose(e.target.value); if (e.target.value.trim()) setPurposeError(false); }}
+          className={purposeError ? "!border-red-400 !shadow-[0_0_0_3px_rgba(225,29,72,0.14)]" : undefined}
+        />
+        {purposeError && <p className="text-[11.5px] font-medium mt-1" style={{ color: "#be123c" }}>Purpose is required.</p>}
+      </div>
       <TextField
         label="Visitors"
         placeholder="Enter visitor names separated by commas"
@@ -127,12 +146,11 @@ export function AppointmentModal({
         onChange={(e) => setVisitorsText(e.target.value)}
       />
       <FieldRow>
-        <TextField
+        <DateField
           label="Date"
-          type="date"
           value={date}
-          onChange={(e) => { setDate(e.target.value); setConflicts(null); }}
-          className={conflicts ? "!border-red-400 !shadow-[0_0_0_3px_rgba(225,29,72,0.14)]" : undefined}
+          onChange={(v) => { setDate(v); setConflicts(null); }}
+          invalid={!!conflicts}
         />
         <TextField
           label="Time"
@@ -180,7 +198,16 @@ export function AppointmentModal({
 }
 
 export interface LogUnplannedVisitorInput {
-  name: string; purpose: string; decision: string; remarks: string;
+  name: string; purpose: string; decision: string; remarks: string; date: string; time: string;
+}
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function nowHHMM() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 export function UnplannedVisitorModal({ open, onClose, onLog }: { open: boolean; onClose: () => void; onLog: (input: LogUnplannedVisitorInput) => void }) {
@@ -188,10 +215,12 @@ export function UnplannedVisitorModal({ open, onClose, onLog }: { open: boolean;
   const [purpose, setPurpose] = useState("");
   const [decision, setDecision] = useState("Reschedule");
   const [remarks, setRemarks] = useState("");
+  const [date, setDate] = useState(todayKey());
+  const [time, setTime] = useState(nowHHMM());
 
   const submit = () => {
-    onLog({ name: name || "Unplanned visitor", purpose, decision, remarks });
-    setName(""); setPurpose(""); setRemarks("");
+    onLog({ name: name || "Unplanned visitor", purpose, decision, remarks, date, time });
+    setName(""); setPurpose(""); setRemarks(""); setDate(todayKey()); setTime(nowHHMM());
     onClose();
   };
 
@@ -209,12 +238,122 @@ export function UnplannedVisitorModal({ open, onClose, onLog }: { open: boolean;
     >
       <TextField label="Visitor Name" placeholder="e.g. Unannounced vendor rep" value={name} onChange={(e) => setName(e.target.value)} />
       <TextField label="Purpose" value={purpose} onChange={(e) => setPurpose(e.target.value)} />
+      <FieldRow>
+        <DateField label="Date" value={date} onChange={setDate} />
+        <TextField label="Time" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+      </FieldRow>
       <SelectField label="PA Decision" value={decision} onChange={(e) => setDecision(e.target.value)}>
         <option>Allow now</option>
         <option>Reject</option>
         <option>Reschedule</option>
       </SelectField>
       <TextAreaField label="Remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+    </Modal>
+  );
+}
+
+export interface EditAppointmentInput {
+  requester: string; dept: string; purpose: string; date: string; time: string; priority: Priority;
+  visitors: string[]; approval: ApprovalStatus;
+}
+
+const ALL_APPROVAL_STATUSES: ApprovalStatus[] = ["Pending", "Approved", "Rejected", "Postponed", "Completed", "Cancelled"];
+
+/** The PA's manual-override editor — the one place every appointment field,
+ * including approval status, can be corrected directly (see PRD: the PA
+ * must be able to finalize an appointment when the normal approve/reject
+ * flow doesn't cover the situation). Not gated by the quick-action
+ * transition matrix; the backend logs the old -> new status when it changes. */
+export function EditAppointmentModal({
+  appointment,
+  onClose,
+  onSave,
+}: {
+  appointment: Appointment | null;
+  onClose: () => void;
+  onSave: (id: string, input: EditAppointmentInput) => void;
+}) {
+  const [requester, setRequester] = useState("");
+  const [dept, setDept] = useState("");
+  const [purpose, setPurpose] = useState("");
+  const [purposeError, setPurposeError] = useState(false);
+  const [visitorsText, setVisitorsText] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [priority, setPriority] = useState<Priority>("Medium");
+  const [approval, setApproval] = useState<ApprovalStatus>("Pending");
+
+  // Re-seed local state every time a different appointment is opened for editing.
+  const [loadedId, setLoadedId] = useState<string | null>(null);
+  if (appointment && appointment.id !== loadedId) {
+    setLoadedId(appointment.id);
+    setRequester(appointment.requester);
+    setDept(appointment.dept);
+    setPurpose(appointment.purpose);
+    setPurposeError(false);
+    setVisitorsText(appointment.visitors.join(", "));
+    setDate(appointment.date);
+    setTime(appointment.time);
+    setPriority(appointment.priority);
+    setApproval(appointment.approval);
+  }
+
+  if (!appointment) return null;
+
+  const submit = () => {
+    if (!purpose.trim()) {
+      setPurposeError(true);
+      return;
+    }
+    const visitors = visitorsText.split(",").map((v) => v.trim()).filter(Boolean);
+    onSave(appointment.id, { requester, dept, purpose, date, time, priority, visitors, approval });
+    setLoadedId(null);
+    onClose();
+  };
+
+  return (
+    <Modal
+      open={!!appointment}
+      onClose={() => { setLoadedId(null); onClose(); }}
+      title={`Edit Appointment — ${appointment.requester}`}
+      footer={
+        <>
+          <Button variant="ghost" onClick={() => { setLoadedId(null); onClose(); }}>Cancel</Button>
+          <Button variant="primary" onClick={submit}>Save Changes</Button>
+        </>
+      }
+    >
+      <FieldRow>
+        <TextField label="Requester" value={requester} onChange={(e) => setRequester(e.target.value)} />
+        <TextField label="Department" value={dept} onChange={(e) => setDept(e.target.value)} />
+      </FieldRow>
+      <div>
+        <TextField
+          label="Purpose *"
+          value={purpose}
+          onChange={(e) => { setPurpose(e.target.value); if (e.target.value.trim()) setPurposeError(false); }}
+          className={purposeError ? "!border-red-400 !shadow-[0_0_0_3px_rgba(225,29,72,0.14)]" : undefined}
+        />
+        {purposeError && <p className="text-[11.5px] font-medium mt-1" style={{ color: "#be123c" }}>Purpose is required.</p>}
+      </div>
+      <TextField
+        label="Visitors"
+        placeholder="Enter visitor names separated by commas"
+        value={visitorsText}
+        onChange={(e) => setVisitorsText(e.target.value)}
+      />
+      <FieldRow>
+        <DateField label="Date" value={date} onChange={setDate} />
+        <TextField label="Time" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+      </FieldRow>
+      <FieldRow>
+        <SelectField label="Priority" value={priority} onChange={(e) => setPriority(e.target.value as Priority)}>
+          {["Low", "Medium", "High", "Critical"].map((p) => <option key={p}>{p}</option>)}
+        </SelectField>
+        <SelectField label="Approval Status" value={approval} onChange={(e) => setApproval(e.target.value as ApprovalStatus)}>
+          {ALL_APPROVAL_STATUSES.map((s) => <option key={s}>{s}</option>)}
+        </SelectField>
+      </FieldRow>
     </Modal>
   );
 }

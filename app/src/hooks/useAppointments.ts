@@ -23,7 +23,7 @@ export function useAppointments() {
   );
 
   const actOnAppointment = useCallback(
-    async (id: string, status: "Approved" | "Rejected" | "Postponed", reason?: string) => {
+    async (id: string, status: "Approved" | "Rejected" | "Postponed" | "Completed", reason?: string) => {
       if (!token) return;
       try {
         const updated = await api.appointments.act(token, id, status, reason);
@@ -50,6 +50,25 @@ export function useAppointments() {
     [token, setData, toast]
   );
 
+  const editAppointment = useCallback(
+    async (
+      id: string,
+      input: Partial<{ requester: string; dept: string; purpose: string; date: string; time: string; priority: Priority; visitors: string[]; approval: ApprovalStatus }>
+    ) => {
+      if (!token) return false;
+      try {
+        const updated = await api.appointments.edit(token, id, input);
+        setData((prev) => prev?.map((a) => (a.id === id ? updated : a)) ?? prev);
+        toast(`Appointment ${id} updated`);
+        return true;
+      } catch (err) {
+        toast(err instanceof ApiError ? err.message : "Could not save changes.");
+        return false;
+      }
+    },
+    [token, setData, toast]
+  );
+
   return {
     appointments: data ?? [],
     loading,
@@ -58,6 +77,7 @@ export function useAppointments() {
     createAppointment,
     actOnAppointment,
     rescheduleAppointment,
+    editAppointment,
   };
 }
 
@@ -66,7 +86,7 @@ export function useVisitorHistory() {
   const toast = useToast();
 
   const logUnplannedVisitor = useCallback(
-    async (input: { name: string; purpose: string; decision: string; remarks: string }) => {
+    async (input: { name: string; purpose: string; decision: string; remarks: string; date: string; time: string }) => {
       if (!token) return;
       try {
         const { visitorHistoryEntry } = await api.unplannedVisitors.create(token, input);

@@ -2,7 +2,7 @@ export type Role = "CEO" | "PA";
 
 export type Priority = "Low" | "Medium" | "High" | "Critical";
 
-export type ApprovalStatus = "Pending" | "Approved" | "Rejected" | "Postponed";
+export type ApprovalStatus = "Pending" | "Approved" | "Rejected" | "Postponed" | "Completed" | "Cancelled";
 export type MeetingLinkStatus = "Pending" | "Scheduled" | "Cancelled";
 
 export interface Appointment {
@@ -20,8 +20,10 @@ export interface Appointment {
 }
 
 export interface VisitorHistoryEntry {
+  id: string;
   name: string;
   date: string;
+  time: string;
   purpose: string;
   outcome: string;
 }

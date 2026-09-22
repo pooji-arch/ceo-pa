@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
 import { cx } from "../../lib/utils";
 
-function Label({ children }: { children: ReactNode }) {
+export function Label({ children }: { children: ReactNode }) {
   return (
     <label className="block text-[0.64rem] font-extrabold text-[var(--muted-strong)] uppercase tracking-[0.06em] mb-1.5">
       {children}

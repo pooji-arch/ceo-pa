@@ -94,15 +94,17 @@ function timeToMinutes(time: string): number {
   return (h || 0) * 60 + (m || 0);
 }
 
+const NOT_OCCUPYING_STATUSES = ["Rejected", "Cancelled", "Completed"];
+
 /** Appointments on the same date whose assumed [start, start+30min) window
- * overlaps the given date/time. Rejected requests are excluded since a
- * declined request no longer holds the slot. */
+ * overlaps the given date/time. Rejected/Cancelled/Completed are excluded
+ * since none of them still hold the slot. */
 export function findAppointmentConflicts(appointments: Appointment[], date: string, time: string): Appointment[] {
   if (!date || !time) return [];
   const start = timeToMinutes(time);
   const end = start + APPOINTMENT_SLOT_MINUTES;
   return appointments.filter((a) => {
-    if (a.approval === "Rejected" || a.date !== date) return false;
+    if (NOT_OCCUPYING_STATUSES.includes(a.approval) || a.date !== date) return false;
     const aStart = timeToMinutes(a.time);
     const aEnd = aStart + APPOINTMENT_SLOT_MINUTES;
     return start < aEnd && aStart < end;

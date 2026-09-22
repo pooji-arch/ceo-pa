@@ -196,10 +196,10 @@ export default function WeeklySchedule() {
 
     appointments.forEach((a) => {
       const label = `${a.requester} — ${a.purpose}`;
-      if (a.approval === "Approved" || a.approval === "Pending") {
+      if (a.approval === "Approved" || a.approval === "Pending" || a.approval === "Completed") {
         push({ key: `apt-${a.id}`, date: a.date, label, time: a.time, kind: "appointment", variant: "actual" });
       } else {
-        // Rejected / Postponed: a real commitment that fell through — red, not grey.
+        // Rejected / Postponed / Cancelled: a real commitment that fell through — red, not grey.
         push({ key: `apt-${a.id}`, date: a.date, label, time: a.time, kind: "appointment", variant: "fellThrough", statusNote: a.approval });
       }
     });

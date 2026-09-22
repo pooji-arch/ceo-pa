@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -17,6 +18,18 @@ export function Modal({
   footer?: ReactNode;
   width?: number;
 }) {
+  // Lock the background page while any modal is open — only the modal's own
+  // content (frosted-modal-scroll below) should scroll, not the page behind
+  // it. Restored on close/unmount so it never leaks across modals.
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
+
   return (
     <AnimatePresence>
       {open && (

@@ -37,6 +37,8 @@ enum ApprovalStatus {
   Approved
   Rejected
   Postponed
+  Completed
+  Cancelled
 }
 
 enum MeetingLinkStatus {
@@ -152,6 +154,7 @@ model VisitorHistoryEntry {
   id      String   @id @default(cuid())
   name    String
   date    DateTime @db.Date
+  time    String   @default("")
   purpose String
   outcome String
 }
